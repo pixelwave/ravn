@@ -29,6 +29,18 @@ The agent is optional. Install the small program on a Linux machine when you wan
 
 Docker comes in through Arcane. Connect the Arcane manager you already run, and Home Assistant shows its containers. From there you can start, stop, restart, and redeploy them.
 
+<img width="2062" height="1432" alt="img-1" src="https://github.com/user-attachments/assets/b7231b89-a635-4257-8889-9f43d1714d07" />
+
+
+<img width="1156" height="778" alt="img-2" src="https://github.com/user-attachments/assets/694998e0-1aad-4e05-bfcf-2ea3b8ab2c0b" />
+
+
+<img width="2155" height="1070" alt="img-3" src="https://github.com/user-attachments/assets/8434c521-988b-4269-afb8-236382d255f1" />
+
+
+<img width="1238" height="866" alt="img-5" src="https://github.com/user-attachments/assets/c6dbf3d5-357b-4df1-9108-2321b942d9f3" />
+
+
 ### Home Assistant
 
 - One entry per machine, titled `hostname • address`, with an optional `ravn-agent` device if installed.
