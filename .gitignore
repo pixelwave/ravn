@@ -1,0 +1,8 @@
+LAB.md
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+agent/ravn
+*.partial
+.DS_Store

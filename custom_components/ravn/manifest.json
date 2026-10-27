@@ -1,0 +1,13 @@
+{
+  "domain": "ravn",
+  "name": "RAVN",
+  "codeowners": ["@pixelwave"],
+  "config_flow": true,
+  "documentation": "https://github.com/pixelwave/ravn",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/pixelwave/ravn/issues",
+  "requirements": [],
+  "version": "26.10.27",
+  "zeroconf": ["_ravn._tcp.local."]
+}

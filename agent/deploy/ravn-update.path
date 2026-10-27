@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for a staged RAVN binary
+
+[Path]
+PathChanged=/var/lib/ravn
+Unit=ravn-update.service
+
+[Install]
+WantedBy=multi-user.target

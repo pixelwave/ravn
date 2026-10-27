@@ -1,0 +1,8 @@
+[Unit]
+Description=Install a staged RAVN binary and remove the staging file
+ConditionPathExists=/var/lib/ravn/staged
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/libexec/ravn-apply

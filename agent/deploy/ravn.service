@@ -1,0 +1,29 @@
+[Unit]
+Description=RAVN node agent
+Documentation=https://github.com/pixelwave/ravn
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ravn
+Group=ravn
+ExecStart=/usr/local/bin/ravn serve
+Restart=on-failure
+RestartSec=2
+MemoryMax=32M
+CPUQuota=10%
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/etc/ravn /var/lib/ravn
+PrivateTmp=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

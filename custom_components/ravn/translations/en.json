@@ -1,0 +1,115 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Add a machine",
+        "description": "Connect a RAVN agent, or connect an Arcane manager with its URL and an API key. Each machine is its own entry.",
+        "menu_options": {
+          "node": "RAVN node",
+          "arcane": "Arcane manager"
+        }
+      },
+      "node": {
+        "title": "Connect to a RAVN node",
+        "description": "Enter the address printed when the agent was installed.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "arcane": {
+        "title": "Arcane manager",
+        "description": "Enter the manager URL, usually port 3552, and an API key from Settings, API Keys. The key needs containers list, start, stop, restart, redeploy, and update. Home Assistant contacts only this manager.",
+        "data": {
+          "url": "URL",
+          "api_key": "API key",
+          "scan_interval": "Scan interval (seconds)",
+          "include_remote": "Include other machines",
+          "show_updates": "Show updates in Home Assistant",
+          "stale_hours": "Hide missing containers after (hours)"
+        },
+        "data_description": {
+          "show_updates": "Container image updates are listed on the Home Assistant updates page only when this is on.",
+          "stale_hours": "Set interval to 0 for never"
+        }
+      },
+      "token": {
+        "title": "Confirm {name}",
+        "description": "The agent certificate fingerprint is {fingerprint}. It must match the fingerprint printed at install. Then enter the token.",
+        "data": {
+          "token": "Token"
+        }
+      },
+      "reconfigure_pick": {
+        "title": "Choose a machine",
+        "description": "Choose the machine whose address or token changed.",
+        "data": {
+          "node_id": "Machine"
+        }
+      },
+      "reconfigure_node": {
+        "title": "Update connection",
+        "description": "Enter the address and token from that machine. The certificate fingerprint is read from the agent.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "token": "Token"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect.",
+      "invalid_auth": "The credentials were rejected.",
+      "invalid_url": "Enter a manager URL, such as http://192.0.2.10:3552.",
+      "wrong_node": "That agent is a different node."
+    },
+    "abort": {
+      "already_configured": "This node is already configured.",
+      "arcane_updated": "Arcane manager saved.",
+      "cannot_connect": "Could not connect to the agent.",
+      "fingerprint_mismatch": "The certificate does not match the advertised fingerprint.",
+      "no_nodes": "This machine has no agent to update.",
+      "node_added": "The agent was added to that machine.",
+      "not_ravn": "This advertisement is not a RAVN agent.",
+      "reconfigure_successful": "Connection updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Arcane manager",
+        "description": "Home Assistant contacts only this manager. Leave the API key blank to keep the saved key. Include other machines lists every environment the manager already knows. An offline machine is never removed. Clean up missing hides a vanished container now. Turn on Remove to forget this manager.",
+        "data": {
+          "url": "URL",
+          "api_key": "API key",
+          "scan_interval": "Scan interval (seconds)",
+          "include_remote": "Include other machines",
+          "show_updates": "Show updates in Home Assistant",
+          "stale_hours": "Hide missing containers after (hours)",
+          "remove": "Remove Arcane"
+        },
+        "data_description": {
+          "show_updates": "Container image updates are listed on the Home Assistant updates page only when this is on.",
+          "stale_hours": "Set interval to 0 for never",
+          "remove": "Forgets the URL and API key. Docker and the RAVN agents stay."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the manager.",
+      "invalid_auth": "The API key was rejected.",
+      "invalid_url": "Enter a manager URL, such as http://192.0.2.10:3552."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "machine_name": {
+        "name": "Machine name"
+      },
+      "ip_address": {
+        "name": "IP address"
+      }
+    }
+  }
+}
