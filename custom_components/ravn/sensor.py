@@ -266,4 +266,5 @@ class ArcaneStatusSensor(ArcaneContainerEntity, SensorEntity):
             "status": container["status"],
             "image": container["image"],
             "environment": pair[0]["title"],
+            **self.container_note_attributes(),
         }

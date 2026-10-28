@@ -19,7 +19,10 @@ from .const import (
     CONF_MACHINE_NAME,
     CONF_NODE_ID,
     CONF_NODES,
+    CONF_SHOW_UPDATES,
+    CONF_STALE_HOURS,
     DEFAULT_PORT,
+    DEFAULT_STALE_HOURS,
     DOMAIN,
 )
 
@@ -83,6 +86,12 @@ def entry_payload(data: dict[str, Any], nodes: list[dict[str, Any]]) -> dict[str
             "api_key": str(arcane["api_key"]),
             "scan_interval": int(arcane.get("scan_interval") or 60),
             "include_remote": bool(arcane.get("include_remote", True)),
+            CONF_SHOW_UPDATES: bool(arcane.get(CONF_SHOW_UPDATES, False)),
+            CONF_STALE_HOURS: (
+                int(arcane[CONF_STALE_HOURS])
+                if CONF_STALE_HOURS in arcane
+                else DEFAULT_STALE_HOURS
+            ),
         }
     for key in (CONF_ARCANE_ENV, CONF_ARCANE_MANAGER, CONF_MACHINE_NAME, CONF_MACHINE_IP, CONF_AUTO_TITLE):
         value = data.get(key)

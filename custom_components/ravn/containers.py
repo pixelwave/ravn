@@ -209,6 +209,21 @@ class ArcaneContainerEntity(CoordinatorEntity[ArcaneCoordinator]):
             return False
         return True
 
+    def container_note_attributes(self) -> dict[str, str]:
+        """Custom URL and name, also exposed on the container's other entities."""
+        notes = {"url": "", "name": ""}
+        reader = getattr(self.coordinator, "container_notes", None)
+        if reader is not None:
+            notes = reader(self._key)
+        return {
+            "custom_url": str(notes.get("url") or ""),
+            "custom_name": str(notes.get("name") or ""),
+        }
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str]:
+        return self.container_note_attributes()
+
     @property
     def device_info(self) -> DeviceInfo:
         pair = self._pair()

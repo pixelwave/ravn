@@ -121,21 +121,25 @@ def _setup_containers(
     added: set[str] = set()
 
     def _sync() -> None:
-        fresh: list[ArcaneRunningSwitch] = []
+        fresh: list[ArcaneRunningSwitch | ArcaneExcludeSwitch] = []
         keep: set[str] = set()
         runtime = entry.runtime_data
         for _machine, container in iter_entry_containers(entry, coordinator.data, runtime.coordinators):
-            unique_id = f"arcane:{container['key']}:running"
-            keep.add(unique_id)
-            if container["key"] in added:
-                continue
-            added.add(container["key"])
-            fresh.append(ArcaneRunningSwitch(coordinator, entry, container["key"]))
+            key = container["key"]
+            for unique_id, factory in (
+                (f"arcane:{key}:running", ArcaneRunningSwitch),
+                (f"arcane:{key}:exclude", ArcaneExcludeSwitch),
+            ):
+                keep.add(unique_id)
+                if unique_id in added:
+                    continue
+                added.add(unique_id)
+                fresh.append(factory(coordinator, entry, key))
         if fresh:
             async_add_entities(fresh)
-        for key in list(added):
-            if f"arcane:{key}:running" not in keep:
-                added.discard(key)
+        for unique_id in list(added):
+            if unique_id not in keep:
+                added.discard(unique_id)
         drop_arcane_entities(hass, entry, "switch", keep)
 
     _sync()
@@ -165,10 +169,42 @@ class ArcaneRunningSwitch(ArcaneContainerEntity, SwitchEntity):
         pair = self._pair()
         if pair is None:
             return None
-        return {"status": str(pair[1].get("status") or ""), "image": str(pair[1].get("image") or "")}
+        return {
+            "status": str(pair[1].get("status") or ""),
+            "image": str(pair[1].get("image") or ""),
+            **self.container_note_attributes(),
+        }
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         await self._run("start", 30)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self._run("stop", 30)
+
+
+class ArcaneExcludeSwitch(ArcaneContainerEntity, SwitchEntity):
+    """Keep this container out of dashboards that honor the flag. Off by default."""
+
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_icon = "mdi:eye-off"
+    _attr_name = "Exclude container"
+
+    def __init__(self, coordinator: ArcaneCoordinator, entry: ConfigEntry, key: str) -> None:
+        super().__init__(coordinator, entry, key)
+        self._attr_unique_id = f"arcane:{key}:exclude"
+        self.entity_id = container_entity_id(coordinator.data, key, "switch", self._attr_name)
+
+    @property
+    def available(self) -> bool:
+        """Stay editable while the container is still listed, including while it is offline."""
+        return self._pair() is not None
+
+    @property
+    def is_on(self) -> bool:
+        return bool(self.coordinator.container_notes(self._key).get("exclude"))
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self.coordinator.async_set_container_note(self._key, "exclude", "on")
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self.coordinator.async_set_container_note(self._key, "exclude", "off")

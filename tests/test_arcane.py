@@ -416,3 +416,18 @@ async def test_remote_toggle_controls_environment_list(manager):
         both = await client.snapshot(include_remote=True)
     assert [machine["env_id"] for machine in local["machines"]] == ["0"]
     assert {machine["env_id"] for machine in both["machines"]} == {"0", "env-2"}
+
+
+def test_container_notes_drop_blanks_and_removed_containers():
+    assert arcane.container_note_record("  ", " ") is None
+    assert arcane.container_note_record("", "", True) == {"url": "", "name": "", "exclude": True}
+    assert arcane.container_note_record(" https://esphome.local ", " ESPHome ") == {
+        "url": "https://esphome.local",
+        "name": "ESPHome",
+        "exclude": False,
+    }
+    snapshot = {"machines": [{"containers": [{"key": "env:web"}]}]}
+    notes = {"env:web": {"url": "https://web", "name": ""}, "env:gone": {"url": "", "name": "Old"}}
+    assert arcane.prune_container_notes(notes, snapshot) == {
+        "env:web": {"url": "https://web", "name": ""},
+    }

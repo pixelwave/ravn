@@ -28,7 +28,7 @@ MIN_SCAN_INTERVAL = 15
 MAX_SCAN_INTERVAL = 3600
 DEFAULT_STALE_HOURS = 24
 
-PLATFORMS = ["sensor", "switch", "number", "update", "button"]
+PLATFORMS = ["sensor", "switch", "number", "update", "button", "text"]
 
 _SLUG_BREAKS = re.compile(r"[^a-z0-9]+")
 

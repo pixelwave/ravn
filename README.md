@@ -92,6 +92,10 @@ curl -fsSL https://pixelwave.github.io/ravn/uninstall.sh | bash -s -- --purge
 
 Later releases are listed in the [change history](CHANGELOG.md).
 
+## Dashboard
+
+The container and service tiles are described in [HA-DASHBOARD.md](HA-DASHBOARD.md).
+
 ## Development
 
 The agent is a Go module in `agent/`. The integration is `custom_components/ravn/`.

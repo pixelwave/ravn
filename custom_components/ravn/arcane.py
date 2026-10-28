@@ -250,6 +250,31 @@ def assemble_snapshot(
     return {"url": manager_url, "machines": machines}
 
 
+def container_keys(snapshot: dict[str, Any] | None) -> set[str]:
+    """Stable keys of the containers still present in a snapshot."""
+    keys: set[str] = set()
+    for machine in (snapshot or {}).get("machines") or []:
+        for container in machine.get("containers") or []:
+            key = container.get("key")
+            if key:
+                keys.add(str(key))
+    return keys
+
+
+def container_note_record(url: str, name: str, exclude: bool = False) -> dict[str, Any] | None:
+    """Stored custom URL, name, and exclude flag. An empty record is dropped."""
+    record: dict[str, Any] = {"url": url.strip(), "name": name.strip(), "exclude": bool(exclude)}
+    if not record["url"] and not record["name"] and not record["exclude"]:
+        return None
+    return record
+
+
+def prune_container_notes(notes: dict[str, Any], snapshot: dict[str, Any] | None) -> dict[str, Any]:
+    """Drop saved notes for containers that are no longer in the snapshot."""
+    live = container_keys(snapshot)
+    return {str(key): value for key, value in notes.items() if str(key) in live}
+
+
 def merge_presence(
     previous: dict[str, Any] | None,
     current: dict[str, Any],

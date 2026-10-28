@@ -12,7 +12,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .arcane import ArcaneAuthError, ArcaneClient, ArcaneError, drop_verified_missing, merge_presence
+from .arcane import (
+    ArcaneAuthError,
+    ArcaneClient,
+    ArcaneError,
+    container_note_record,
+    drop_verified_missing,
+    merge_presence,
+    prune_container_notes,
+)
 from .client import RavnAuthError, RavnClient, RavnError
 from .const import CONF_ARCANE, CONF_STALE_HOURS, DEFAULT_STALE_HOURS, DOMAIN
 
@@ -109,6 +117,11 @@ class ArcaneCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._missing: dict[str, float] = {}
         self._missing_loaded = False
         self._store: Store[dict[str, float]] = Store(hass, 1, f"{DOMAIN}.arcane-missing.{entry.entry_id}")
+        self._notes: dict[str, dict[str, str]] = {}
+        self._notes_loaded = False
+        self._notes_store: Store[dict[str, dict[str, str]]] = Store(
+            hass, 1, f"{DOMAIN}.arcane-notes.{entry.entry_id}"
+        )
 
     def _grace_seconds(self) -> float | None:
         """Hours to keep a vanished container. Zero or less means keep it until cleanup."""
@@ -147,6 +160,7 @@ class ArcaneCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         await self._load_missing()
+        await self._load_notes()
         try:
             current = await self.client.snapshot(include_remote=self.include_remote)
         except ArcaneAuthError as err:
@@ -162,7 +176,65 @@ class ArcaneCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             force_drop=False,
         )
         await self._store_missing(missing)
+        await self._prune_notes(merged)
         return merged
+
+    def container_notes(self, key: str) -> dict[str, Any]:
+        """Custom URL, name, and exclude flag. Missing strings are empty."""
+        raw = self._notes.get(key) or {}
+        return {
+            "url": str(raw.get("url") or ""),
+            "name": str(raw.get("name") or ""),
+            "exclude": bool(raw.get("exclude")),
+        }
+
+    async def async_set_container_note(self, key: str, field: str, value: str) -> None:
+        """Save one custom field and refresh entities that show it."""
+        await self._load_notes()
+        current = self.container_notes(key)
+        if field == "exclude":
+            current["exclude"] = str(value).strip().lower() in {"1", "true", "on", "yes"}
+        else:
+            current[field] = value
+        record = container_note_record(current["url"], current["name"], current["exclude"])
+        notes = dict(self._notes)
+        if record is None:
+            notes.pop(key, None)
+        else:
+            notes[key] = record
+        if notes != self._notes:
+            self._notes = notes
+            await self._notes_store.async_save(notes)
+        if self.data is not None:
+            self.async_set_updated_data(self.data)
+
+    async def _load_notes(self) -> None:
+        if self._notes_loaded:
+            return
+        self._notes_loaded = True
+        stored = await self._notes_store.async_load()
+        if not isinstance(stored, dict):
+            return
+        loaded: dict[str, dict[str, str]] = {}
+        for key, raw in stored.items():
+            if not isinstance(raw, dict):
+                continue
+            record = container_note_record(
+                str(raw.get("url") or ""),
+                str(raw.get("name") or ""),
+                bool(raw.get("exclude")),
+            )
+            if record is not None:
+                loaded[str(key)] = record
+        self._notes = loaded
+
+    async def _prune_notes(self, snapshot: dict[str, Any]) -> None:
+        await self._load_notes()
+        pruned = prune_container_notes(self._notes, snapshot)
+        if pruned == self._notes:
+            return
+        self._notes = pruned
+        await self._notes_store.async_save(pruned)
 
     async def async_cleanup_now(self) -> None:
         """Remove containers already known to be gone. Offline machines stay."""
@@ -170,4 +242,6 @@ class ArcaneCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return
         self._missing = {}
         await self._store.async_save({})
-        self.async_set_updated_data(drop_verified_missing(self.data))
+        cleaned = drop_verified_missing(self.data)
+        await self._prune_notes(cleaned)
+        self.async_set_updated_data(cleaned)
