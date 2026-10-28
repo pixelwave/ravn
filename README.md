@@ -40,6 +40,8 @@ Docker comes in through Arcane. Connect the Arcane manager you already run, and 
 
 <img width="1238" height="866" alt="img-5" src="https://github.com/user-attachments/assets/c6dbf3d5-357b-4df1-9108-2321b942d9f3" />
 
+<img width="1114" height="1528" alt="image 5" src="https://github.com/user-attachments/assets/94dd31f5-a411-4a00-a42d-12941adecb93" />
+
 
 ### Home Assistant
 
