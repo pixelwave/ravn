@@ -5,7 +5,7 @@
 #   curl -fsSL https://pixelwave.github.io/ravn/install.sh | bash
 set -euo pipefail
 
-REPO="${RAVN_REPO:-pixelwave/ravn}"
+REPO="${RAVN_REPO:-pixelwave/ravn-agent}"
 BINARY=""
 while [[ $# -gt 0 ]]; do
   case "$1" in

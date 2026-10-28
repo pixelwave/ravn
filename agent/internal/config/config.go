@@ -30,7 +30,7 @@ type Setting struct {
 }
 
 // DefaultRepo is the public release repository. Set GitHubRepo to "off" to disable checks.
-const DefaultRepo = "pixelwave/ravn"
+const DefaultRepo = "pixelwave/ravn-agent"
 
 // Update is where an agent upgrade looks for a release.
 // The agent never accepts a URL from a request.

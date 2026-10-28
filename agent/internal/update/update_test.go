@@ -116,6 +116,24 @@ func names(entries []os.DirEntry) []string {
 	return out
 }
 
+func TestCheckIgnoresReleaseWithoutAgent(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/repos/acme/ravn/releases/latest" {
+			http.NotFound(w, r)
+			return
+		}
+		_, _ = w.Write([]byte(`{"tag_name":"v` + bump(version.Version) + `","body":"integration only","assets":[]}`))
+	}))
+	defer srv.Close()
+	info, err := New("acme/ravn", srv.URL, t.TempDir()).Check(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Latest != version.Version {
+		t.Fatalf("latest = %q, want installed %q", info.Latest, version.Version)
+	}
+}
+
 func TestNewerSameDayAndNextDay(t *testing.T) {
 	if !newer("26.10.27.2", "26.10.27") {
 		t.Fatal("same-day .2 should be newer than the first tag")

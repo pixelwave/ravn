@@ -117,10 +117,30 @@ func (u *Updater) Check(ctx context.Context) (Info, error) {
 	if err != nil {
 		return u.info, err
 	}
+	u.info.CheckedAt = u.now()
+	if !rel.hasAgent() {
+		// An integration release has no agent binary. It is not an agent update.
+		u.info.Latest = u.info.Installed
+		u.info.Notes = ""
+		return u.info, nil
+	}
 	u.info.Latest = strings.TrimPrefix(rel.TagName, "v")
 	u.info.Notes = rel.Body
-	u.info.CheckedAt = u.now()
 	return u.info, nil
+}
+
+func (rel release) hasAgent() bool {
+	asset := assetName()
+	hasBin, hasSum := false, false
+	for _, item := range rel.Assets {
+		switch item.Name {
+		case asset:
+			hasBin = true
+		case "SHA256SUMS":
+			hasSum = true
+		}
+	}
+	return hasBin && hasSum
 }
 
 // Apply downloads the pinned asset, checks SHA256SUMS, stages it, and starts the installer.

@@ -3,7 +3,7 @@ package version
 
 // Version is the installed agent release: YY.MM.DD, or YY.MM.DD.N for a
 // later build on the same day. Release builds may override it with -ldflags.
-var Version = "26.10.27"
+var Version = "26.10.28"
 
 // API is the HTTP API generation advertised to Home Assistant.
 const API = 1

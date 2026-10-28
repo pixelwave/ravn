@@ -74,7 +74,7 @@ curl -fsSL https://pixelwave.github.io/ravn/install.sh | bash
 ```
 
 The script prints a URL, a token, and a certificate fingerprint. You need those in Home Assistant.
-The agent checks for a newer release and stages it. Home Assistant shows that on the Agent row and can start the install.
+The agent checks [pixelwave/ravn-agent](https://github.com/pixelwave/ravn-agent/releases) for a newer build and stages it. Home Assistant shows that on the Agent row and can start the install. Integration updates come from HACS in this repository.
 
 ### Remove agent on a node
 
@@ -108,7 +108,7 @@ pip install -r requirements-test.txt && pytest
 `agent/deploy/install.sh --binary ./ravn` installs a binary you built yourself:
 
 ```bash
-cd agent && go build -ldflags "-X ravn/internal/version.Version=26.10.27" -o ravn ./cmd/ravn
+cd agent && go build -ldflags "-X ravn/internal/version.Version=26.10.28" -o ravn ./cmd/ravn
 ```
 
 ## License

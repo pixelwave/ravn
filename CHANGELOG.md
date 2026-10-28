@@ -10,6 +10,10 @@ Integration.
 - **Exclude container**, also under Configuration, leaves the container in Home Assistant and lets a dashboard skip it.
 - **Hide missing containers after** and **Show updates in Home Assistant** stay saved. Set the hours to 0 to keep a vanished container until **Clean up missing**.
 
+Agent.
+
+- Agent builds are published from [pixelwave/ravn-agent](https://github.com/pixelwave/ravn-agent). An integration release no longer looks like an agent update.
+
 The Home Assistant tile layout is described in [HA-DASHBOARD.md](HA-DASHBOARD.md).
 
 ## 26.10.27
