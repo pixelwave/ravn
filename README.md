@@ -90,7 +90,7 @@ curl -fsSL https://pixelwave.github.io/ravn/uninstall.sh | bash -s -- --purge
 
 ## Change history
 
-Releases after 26.10.27 are listed here, newest first. The integration and the agent are listed only when that part changes.
+Later releases are listed in the [change history](CHANGELOG.md).
 
 ## Development
 
