@@ -1,6 +1,11 @@
 # Home Assistant dashboard
 
-The homelab dashboard builds RAVN tiles from three pieces: a container template, a service template, and a small script that groups containers under a machine heading.
+<img width="1114" height="1528" alt="image 5" src="https://github.com/user-attachments/assets/30d0382c-2d7e-4ce5-9d2e-b7048580ea74" />
+
+The homelab dashboard builds RAVN tiles from three pieces: 
+* a container template (→ ravn_container)
+* a small script that groups containers under a machine heading
+* a service template for custom non-docker apps (→ ravn_service)
 
 Icons are files in `config/www/service-icons/` on Home Assistant. A copy of that folder is in [service-icons](service-icons/) in this repository. A container named `esphome` looks for `/local/service-icons/esphome.png`.
 
@@ -18,8 +23,6 @@ Install these from HACS before adding the templates:
 
 One Docker container. The top of the tile opens a URL. The bottom bar starts and stops it.
 
-The tile is 80 pixels tall: 72 for the icon and name, 8 for the bar. A running container is full color, and the bar is green (`#00AD3A`), including its edge. A stopped container shows the icon and name faded and grey, the bar is dark (`#262626`), and that edge uses the same border as the rest of the tile.
-
 ```yaml
 type: custom:decluttering-card
 template: ravn_container
@@ -32,6 +35,9 @@ variables:
 `entity` is the container's Running switch. `name` is optional. When it is set, that text is the label and the icon file name. When it is empty, the label and the icon file come from the entity id. `web_url` is opened on tap.
 
 The listing script below fills these from **Custom URL** and **Custom name** on the container.
+
+<img width="1604" height="1528" alt="image 6" src="https://github.com/user-attachments/assets/5ed79924-e2a2-41d1-a12b-c33a384df65d" />
+
 
 ## ravn_service
 
