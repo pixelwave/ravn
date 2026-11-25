@@ -110,7 +110,7 @@ pip install -r requirements-test.txt && pytest
 `agent/deploy/install.sh --binary ./ravn` installs a binary you built yourself:
 
 ```bash
-cd agent && go build -ldflags "-X ravn/internal/version.Version=26.10.28" -o ravn ./cmd/ravn
+cd agent && go build -ldflags "-X ravn/internal/version.Version=2026.48.1" -o ravn ./cmd/ravn
 ```
 
 ## License

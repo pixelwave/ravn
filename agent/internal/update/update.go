@@ -415,20 +415,14 @@ func compare(a, b string) int {
 	return 0
 }
 
-// splitVer reads YY.MM.DD or YY.MM.DD.N. The first release of a day has three
-// parts and sorts as revision 1, so YY.MM.DD.2 is newer the same day.
-func splitVer(v string) [4]int {
+// splitVer reads the first three numeric components. Versions compare as
+// those numbers, not as text.
+func splitVer(v string) [3]int {
 	v = strings.TrimPrefix(strings.TrimSpace(v), "v")
-	var out [4]int
-	out[3] = 1
+	var out [3]int
 	parts := strings.Split(v, ".")
 	for i := 0; i < len(parts) && i < 3; i++ {
 		out[i] = leadingInt(parts[i])
-	}
-	if len(parts) >= 4 {
-		if n, ok := revision(parts[3]); ok {
-			out[3] = n
-		}
 	}
 	return out
 }
@@ -444,19 +438,4 @@ func leadingInt(part string) int {
 	return n
 }
 
-func revision(suffix string) (int, bool) {
-	if suffix == "" {
-		return 0, false
-	}
-	n := 0
-	for _, c := range suffix {
-		if c < '0' || c > '9' {
-			return 0, false
-		}
-		n = n*10 + int(c-'0')
-	}
-	if n < 2 {
-		return 0, false
-	}
-	return n, true
-}
+

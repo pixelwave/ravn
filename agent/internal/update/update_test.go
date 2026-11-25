@@ -134,21 +134,15 @@ func TestCheckIgnoresReleaseWithoutAgent(t *testing.T) {
 	}
 }
 
-func TestNewerSameDayAndNextDay(t *testing.T) {
-	if !newer("26.10.27.2", "26.10.27") {
-		t.Fatal("same-day .2 should be newer than the first tag")
+func TestNewerWeeklyVersions(t *testing.T) {
+	if !newer("2026.48.1", "26.11.24") {
+		t.Fatal("a weekly version should be newer than an older date tag")
 	}
-	if !newer("26.10.27.3", "26.10.27.2") || !newer("26.10.27.10", "26.10.27.3") {
-		t.Fatal("a higher same-day number should be newer")
+	if !newer("2026.48.2", "2026.48.1") || !newer("2026.49.1", "2026.48.9") {
+		t.Fatal("a higher release or week should be newer")
 	}
-	if !newer("26.10.28", "26.10.27.10") {
-		t.Fatal("the next day should be newer than a same-day number")
-	}
-	if newer("26.10.27", "26.10.27") || newer("26.10.27.2", "26.10.28") || newer("26.10.27-2", "26.10.27") {
-		t.Fatal("equal, older, or hyphen tags should not count as newer")
-	}
-	if !newer("v26.10.27", "26.10.26") {
-		t.Fatal("a later date should be newer")
+	if newer("2026.48.1", "2026.48.1") || newer("2026.48.1", "2026.48.2") {
+		t.Fatal("equal or older versions should not count as newer")
 	}
 }
 

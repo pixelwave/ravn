@@ -2,6 +2,10 @@
 
 Releases are listed newest first. The integration and the agent are listed only when that part changes. 26.10.27 is the first release.
 
+## 2026.48.1
+
+Integration and agent. Versions are now `YYYY.W.R`, from the publication time in Europe/Berlin. Each stream has its own counter. Already published versions stay as they are.
+
 ## 26.11.24
 
 Integration.
