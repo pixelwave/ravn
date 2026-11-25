@@ -95,6 +95,31 @@ def test_remote_machines_are_separate_and_optional():
     assert "dalaran • 192.0.2.10" in titles
 
 
+def test_agent_heading_uses_public_ip():
+    snapshot = arcane.assemble_snapshot(
+        "http://192.0.2.10:3552",
+        [
+            {"id": "0", "name": "Dalaran", "apiUrl": "http://localhost:3552", "enabled": True},
+            {
+                "id": "agent-1",
+                "name": "Freehold",
+                "apiUrl": "agent://freehold",
+                "enabled": True,
+                "agentHost": {"hostname": "freehold", "publicIp": "192.0.2.14"},
+            },
+        ],
+        {"0": {"Name": "dalaran"}, "agent-1": {"Name": "freehold"}},
+        {
+            "0": [{"id": "1", "names": ["arcane"], "state": "running", "status": "Up", "image": "arcane"}],
+            "agent-1": [{"id": "2", "names": ["jellyfin"], "state": "running", "status": "Up", "image": "jellyfin"}],
+        },
+        include_remote=True,
+    )
+    titles = {machine["env_id"]: machine["title"] for machine in snapshot["machines"]}
+    assert titles["0"] == "dalaran • 192.0.2.10"
+    assert titles["agent-1"] == "freehold • 192.0.2.14"
+
+
 def test_container_versions_use_tags_and_digests():
     pinned = arcane.container_versions(
         {

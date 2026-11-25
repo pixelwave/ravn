@@ -72,6 +72,18 @@ def _host_of(url: str) -> str:
     return urlsplit(url).hostname or ""
 
 
+def _agent_public_ip(env: dict[str, Any]) -> str:
+    """LAN address Arcane reports for an outbound agent.
+
+    Agent records use ``agent://hostname`` as ``apiUrl``. The address is
+    ``agentHost.publicIp``.
+    """
+    host = env.get("agentHost")
+    if not isinstance(host, dict):
+        return ""
+    return str(host.get("publicIp") or "").strip()
+
+
 def _local_environment(env: dict[str, Any]) -> bool:
     """The manager's own engine is environment 0, whose API URL is loopback."""
     if str(env.get("id")) == "0":
@@ -209,7 +221,7 @@ def assemble_snapshot(
         if _local_environment(env):
             ip = host
         else:
-            ip = _host_of(str(env.get("apiUrl") or ""))
+            ip = _agent_public_ip(env) or _host_of(str(env.get("apiUrl") or ""))
         name = docker_name or str(env.get("name") or "") or ip
         containers: list[dict[str, Any]] = []
         seen: set[str] = set()
