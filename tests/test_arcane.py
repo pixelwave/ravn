@@ -313,19 +313,20 @@ async def manager():
 
     async def action(request: web.Request) -> web.Response:
         authorized(request)
-        state["last_action"] = (request.match_info["container_id"], request.path.rsplit("/", 1)[-1])
+        state["last_action"] = (
+            request.match_info["container_id"],
+            request.query.get("action") or request.path.rsplit("/", 1)[-1],
+        )
         return web.json_response({"success": True, "data": {"message": "ok"}})
 
     app = web.Application()
-    app.router.add_get("/api/environments/0/containers", containers)
-    app.router.add_get("/api/environments/env-2/containers", containers)
-    app.router.add_get("/api/environments/0/system/docker/info", info)
-    app.router.add_get("/api/environments/env-2/system/docker/info", info)
-    app.router.add_get("/api/environments", environments)
-    app.router.add_post("/api/environments/{env_id}/containers/{container_id}/start", action)
-    app.router.add_post("/api/environments/{env_id}/containers/{container_id}/stop", action)
-    app.router.add_post("/api/environments/{env_id}/containers/{container_id}/restart", action)
-    app.router.add_post("/api/environments/{env_id}/containers/{container_id}/redeploy", action)
+    app.router.add_get("/api/agents/0/containers", containers)
+    app.router.add_get("/api/agents/env-2/containers", containers)
+    app.router.add_get("/api/agents/0/system/docker/info", info)
+    app.router.add_get("/api/agents/env-2/system/docker/info", info)
+    app.router.add_get("/api/agents", environments)
+    app.router.add_post("/api/agents/{env_id}/containers/{container_id}/redeploy", action)
+    app.router.add_post("/api/agents/{env_id}/containers/{container_id}", action)
 
     async def update(request: web.Request) -> web.Response:
         authorized(request)
@@ -345,8 +346,8 @@ async def manager():
             }
         )
 
-    app.router.add_post("/api/environments/{env_id}/containers/{container_id}/update", update)
-    app.router.add_get("/api/environments/{env_id}/activities/{activity_id}", activity)
+    app.router.add_post("/api/agents/{env_id}/containers/{container_id}/update", update)
+    app.router.add_get("/api/agents/{env_id}/activities/{activity_id}", activity)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "127.0.0.1", 0)

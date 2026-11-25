@@ -8,6 +8,6 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/pixelwave/ravn/issues",
   "requirements": [],
-  "version": "26.10.28",
+  "version": "26.11.24",
   "zeroconf": ["_ravn._tcp.local."]
 }

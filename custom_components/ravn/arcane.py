@@ -491,7 +491,7 @@ class ArcaneClient:
             page = await self._request(
                 "GET",
                 path,
-                params={**params, "start": str(start), "limit": str(PAGE_LIMIT)},
+                params={**params, "start": str(start), "limit": str(PAGE_LIMIT), "includeTotal": "true"},
             )
             batch = page.get("data") or []
             if not isinstance(batch, list):
@@ -504,27 +504,36 @@ class ArcaneClient:
                 break
         return rows
 
+    def _agent(self, *parts: str) -> str:
+        """Build an Arcane 3 agent path. Environments were renamed to agents."""
+        encoded = "/".join(quote(part, safe="") for part in parts)
+        return f"/api/agents/{encoded}"
+
     async def list_environments(self) -> list[dict[str, Any]]:
-        """Return enabled and disabled environments. The caller filters them."""
-        return await self._pages("/api/environments", {})
+        """Return enabled and disabled agents. The caller filters them."""
+        return await self._pages("/api/agents", {})
 
     async def list_containers(self, env_id: str) -> list[dict[str, Any]]:
-        """Return containers for one environment, skipping internal and hidden rows."""
+        """Return containers for one agent, skipping internal and hidden rows."""
         return await self._pages(
-            f"/api/environments/{quote(env_id, safe='')}/containers",
+            self._agent(env_id, "containers"),
             {"includeInternal": "false", "includeHidden": "false"},
         )
 
     async def docker_info(self, env_id: str) -> dict[str, Any]:
-        """Return the engine info the manager has for one environment."""
-        return await self._request("GET", f"/api/environments/{quote(env_id, safe='')}/system/docker/info")
+        """Return the engine info the manager has for one agent."""
+        return await self._request("GET", self._agent(env_id, "system", "docker", "info"))
 
     async def action(self, env_id: str, docker_id: str, action: str, *, timeout: float) -> None:
-        """Start, stop, or redeploy one container. Redeploy can pull an image."""
+        """Start, stop, restart, or redeploy one container."""
         if action not in {"start", "stop", "restart", "redeploy"}:
             raise ArcaneError("unknown container action")
-        path = f"/api/environments/{quote(env_id, safe='')}/containers/{quote(docker_id, safe='')}/{action}"
-        await self._request("POST", path, timeout=timeout)
+        if action == "redeploy":
+            path = self._agent(env_id, "containers", docker_id, "redeploy")
+            await self._request("POST", path, timeout=timeout)
+            return
+        path = self._agent(env_id, "containers", docker_id)
+        await self._request("POST", path, params={"action": action}, timeout=timeout)
 
     async def update_container(
         self,
@@ -539,7 +548,7 @@ class ArcaneClient:
         Arcane runs this as an activity. This waits until that activity finishes.
         It does not ask the registry itself. The list poll already carries the check.
         """
-        path = f"/api/environments/{quote(env_id, safe='')}/containers/{quote(docker_id, safe='')}/update"
+        path = self._agent(env_id, "containers", docker_id, "update")
         payload = await self._request("POST", path, params={"async": "true"}, timeout=60)
         activity = _activity_record(payload)
         activity_id = str(activity.get("id") or "")
@@ -552,7 +561,7 @@ class ArcaneClient:
             await asyncio.sleep(poll)
             detail = await self._request(
                 "GET",
-                f"/api/environments/{quote(env_id, safe='')}/activities/{quote(activity_id, safe='')}",
+                self._agent(env_id, "activities", activity_id),
             )
             activity = _activity_record(detail)
         status = str(activity.get("status") or "")
@@ -566,11 +575,11 @@ class ArcaneClient:
         """Confirm the key can read the manager. One page is enough."""
         await self._request(
             "GET",
-            "/api/environments/0/containers",
+            "/api/agents/0/containers",
             params={"start": "0", "limit": "1", "includeInternal": "false", "includeHidden": "false"},
         )
         if include_remote:
-            await self._request("GET", "/api/environments", params={"start": "0", "limit": "1"})
+            await self._request("GET", "/api/agents", params={"start": "0", "limit": "1"})
 
     async def snapshot(self, *, include_remote: bool) -> dict[str, Any]:
         """Read the machines this manager should show.

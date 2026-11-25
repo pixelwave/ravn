@@ -2,6 +2,12 @@
 
 Releases are listed newest first. The integration and the agent are listed only when that part changes. 26.10.27 is the first release.
 
+## 26.11.24
+
+Integration.
+
+- Arcane 3 renamed `/api/environments` to `/api/agents`. Container lists, start, stop, restart, redeploy, and image updates use the new routes. Start, stop, and restart are sent as `?action=`.
+
 ## 26.10.28
 
 Integration.
